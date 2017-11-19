@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_list"
     android:orientation="vertical"
-    tools:context="com.usi.malu2.maquantolousi.ListActivity">
+    tools:context="com.usi.malu2.maquantolousi.AppListActivity">
 
     <Button
         android:layout_width="match_parent"
