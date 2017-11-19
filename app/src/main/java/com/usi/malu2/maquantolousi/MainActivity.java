@@ -1,5 +1,6 @@
 package com.usi.malu2.maquantolousi;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -89,6 +90,14 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void goToSettings(MenuItem item) {
+
+        Intent intent;
+        intent = new Intent(this, ListActivity.class);
+        startActivity(intent);
+    }
+
 
     /**
      * A placeholder fragment containing a simple view.
