@@ -47,14 +47,14 @@ public class AppListActivity extends AppCompatActivity {
     public void fetchInstalled(){
 
         //Initialize sharedPreferences
-        sharedPref = getPreferences(Context.MODE_PRIVATE);
+        sharedPref = getSharedPreferences("USI",MODE_PRIVATE);
 
         //Initialize ArrayLists
         images = new ArrayList<Drawable>();
         names = new ArrayList<String>();
         checks = new ArrayList<Boolean>();
 
-        //Get package manager for list of installed apps
+        //Get package manager for list of incstalled apps
         final PackageManager pm = getPackageManager();
 
         //local variable
