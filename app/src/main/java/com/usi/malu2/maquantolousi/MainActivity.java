@@ -1,14 +1,18 @@
 package com.usi.malu2.maquantolousi;
 
+import android.Manifest;
+import android.app.AppOpsManager;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.provider.Settings;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -35,6 +39,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import static android.app.AppOpsManager.MODE_ALLOWED;
+import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
+import static android.content.pm.PackageManager.PERMISSION_DENIED;
+
 public class MainActivity extends AppCompatActivity {
 
     /**
@@ -47,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
     SharedPreferences sharedPref;
+
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -55,21 +64,52 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         sharedPref = getSharedPreferences("USI",MODE_PRIVATE);
 
+        drawCharts();
+        requestAccessSettings();
+    }
+
+    /**
+     * PACKAGE_USAGE_STATS requires a system-level permission
+     * Settings > Security > Apps with usage access
+     */
+    public void requestAccessSettings(){
+        boolean granted = false;
+        Context context = this.getApplicationContext();
+        AppOpsManager appOps = (AppOpsManager) context
+                .getSystemService(Context.APP_OPS_SERVICE);
+        int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                android.os.Process.myUid(), context.getPackageName());
+
+        if (mode == AppOpsManager.MODE_DEFAULT) {
+            granted = (context.checkCallingOrSelfPermission(android.Manifest.permission.PACKAGE_USAGE_STATS) == PackageManager.PERMISSION_GRANTED);
+        } else {
+            granted = (mode == AppOpsManager.MODE_ALLOWED);
+        }
+        //ask User to allow the app
+        if(!granted){
+            startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+        }
+    }
+
+    public void drawCharts(){
         final PackageManager pm = getPackageManager();
 
-//        Calendar cal = Calendar.getInstance();
-//        cal.add(Calendar.DAY_OF_WEEK, -1);
+        //Calendar cal = Calendar.getInstance();
+        //cal.add(Calendar.DAY_OF_WEEK, -1);
         UsageStatsManager usageStatsManager;
 
         usageStatsManager = (UsageStatsManager) this.getSystemService(Context.USAGE_STATS_SERVICE);
         List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, 0,System.currentTimeMillis());
 
-        BarChart barChart = (BarChart) findViewById(R.id.barchart);
+        BarChart barChart = findViewById(R.id.barchart);
         ArrayList<String> names = new ArrayList<>();
         ArrayList<BarEntry> values = new ArrayList<>();
-//        ArrayList<IBarDataSet> dataSets = new ArrayList<IBarDataSet>();
+        //ArrayList<IBarDataSet> dataSets = new ArrayList<IBarDataSet>();
         int count =0;
         for (UsageStats usage:queryUsageStats){
             try {
@@ -89,18 +129,16 @@ public class MainActivity extends AppCompatActivity {
         };
         BarDataSet barDataSet = new BarDataSet(values, "Apps");
         BarData data = new BarData(names, barDataSet);
-//        dataSets.add(barDataSet);
-//        System.out.println(dataSets);
-//        BarDataSet barDataSet = new BarDataSet(values, "Apps");
-//        BarData barData = new BarData(data);
+        //dataSets.add(barDataSet);
+        //System.out.println(dataSets);
+        //BarDataSet barDataSet = new BarDataSet(values, "Apps");
+        //BarData barData = new BarData(data);
         System.out.println(data);
         System.out.println(names);
         barChart.setData(data);
         barChart.setTouchEnabled(true);
         barChart.setDragScaleEnabled(true);
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -162,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 //            TextView textView = rootView.findViewById(R.id.section_label);
-//            textView.setText(getString(R.string.section_format, "Dailty"));
+//            textView.setText(getString(R.string.section_format, "Daily"));
             // TODO: 11/19/17 ADD THINGS HERE
             return rootView;
 //            return null;
