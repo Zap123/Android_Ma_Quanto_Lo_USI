@@ -54,7 +54,7 @@ public class AppListActivity extends AppCompatActivity {
         names = new ArrayList<String>();
         checks = new ArrayList<Boolean>();
 
-        //Get package manager for list of incstalled apps
+        //Get package manager for the list of installed apps
         final PackageManager pm = getPackageManager();
 
         //local variable

@@ -33,11 +33,14 @@ import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 
 import static android.app.AppOpsManager.MODE_ALLOWED;
 import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
@@ -69,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         sharedPref = getSharedPreferences("USI",MODE_PRIVATE);
 
-        drawCharts();
+        drawCharts("Daily");
         requestAccessSettings();
     }
 
@@ -96,19 +99,57 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void drawCharts(){
+    public void drawCharts(String Interval){
         final PackageManager pm = getPackageManager();
 
         //Calendar cal = Calendar.getInstance();
         //cal.add(Calendar.DAY_OF_WEEK, -1);
         UsageStatsManager usageStatsManager;
 
+        //Map package_name, usage time
+        Map<String, UsageStats> stats = null;
         usageStatsManager = (UsageStatsManager) this.getSystemService(Context.USAGE_STATS_SERVICE);
-        List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, 0,System.currentTimeMillis());
+        //List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, 0,System.currentTimeMillis());
 
-        BarChart barChart = findViewById(R.id.barchart);
+        //get today time at midnight
+        if(Interval.equals("Daily")) {
+            // today
+            Calendar date = new GregorianCalendar();
+            // reset hour, minutes, seconds and millis
+            date.set(Calendar.HOUR_OF_DAY, 0);
+            date.set(Calendar.MINUTE, 0);
+            date.set(Calendar.SECOND, 0);
+            date.set(Calendar.MILLISECOND, 0);
+
+            stats = usageStatsManager.queryAndAggregateUsageStats(date.getTimeInMillis(), System.currentTimeMillis());
+        }
+
         ArrayList<String> names = new ArrayList<>();
-        ArrayList<BarEntry> values = new ArrayList<>();
+        ArrayList values = new ArrayList();
+
+        if(stats !=null) {
+            int bucket = 0;
+            for (Map.Entry<String, android.app.usage.UsageStats> entry : stats.entrySet()) {
+                System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue());
+                String name = null;
+                try {
+                    name = (String) pm.getApplicationLabel(pm.getApplicationInfo(entry.getKey(), pm.GET_META_DATA));
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                if (sharedPref.getBoolean(name, false)){
+                    names.add(name);
+                    //add and convert to minutes
+                    values.add(new BarEntry((float) entry.getValue().getTotalTimeInForeground()  / (1000 * 60), bucket));
+                    bucket++;
+                }
+            }
+
+        }
+
+        /*
+
         //ArrayList<IBarDataSet> dataSets = new ArrayList<IBarDataSet>();
         int count =0;
         for (UsageStats usage:queryUsageStats){
@@ -127,14 +168,21 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             };
         };
+        */
+
+        BarChart barChart = findViewById(R.id.barchart);
         BarDataSet barDataSet = new BarDataSet(values, "Apps");
         BarData data = new BarData(names, barDataSet);
+
+        //change style
+        barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
         //dataSets.add(barDataSet);
         //System.out.println(dataSets);
         //BarDataSet barDataSet = new BarDataSet(values, "Apps");
         //BarData barData = new BarData(data);
         System.out.println(data);
         System.out.println(names);
+
         barChart.setData(data);
         barChart.setTouchEnabled(true);
         barChart.setDragScaleEnabled(true);
