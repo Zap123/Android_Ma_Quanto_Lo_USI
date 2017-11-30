@@ -217,7 +217,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
+    public void goToBlock(MenuItem item){
+        Intent intent;
+        intent = new Intent(this, BlockListActivity.class);
+        startActivity(intent);
+    }
     /**
      * A placeholder fragment containing a simple view.
      */
