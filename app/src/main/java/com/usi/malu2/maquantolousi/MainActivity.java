@@ -30,11 +30,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
-
+import com.github.mikephil.charting.charts.HorizontalBarChart;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -125,15 +128,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         ArrayList<String> names = new ArrayList<>();
-        ArrayList values = new ArrayList();
+        ArrayList<BarEntry> values = new ArrayList<>();
 
         if(stats !=null) {
-            int bucket = 0;
+            float bucket = 0f;
             for (Map.Entry<String, android.app.usage.UsageStats> entry : stats.entrySet()) {
                 System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue());
                 String name = null;
                 try {
-                    name = (String) pm.getApplicationLabel(pm.getApplicationInfo(entry.getKey(), pm.GET_META_DATA));
+                    name = (String) pm.getApplicationLabel(pm.getApplicationInfo(entry.getKey(), PackageManager.GET_META_DATA));
                 } catch (PackageManager.NameNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -141,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 if (sharedPref.getBoolean(name, false)){
                     names.add(name);
                     //add and convert to minutes
-                    values.add(new BarEntry((float) entry.getValue().getTotalTimeInForeground()  / (1000 * 60), bucket));
+                    values.add(new BarEntry(bucket,(float) entry.getValue().getTotalTimeInForeground()  / (1000 * 60)));
                     bucket++;
                 }
             }
@@ -172,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
         BarChart barChart = findViewById(R.id.barchart);
         BarDataSet barDataSet = new BarDataSet(values, "Apps");
-        BarData data = new BarData(names, barDataSet);
+        BarData data = new BarData(barDataSet);
 
         //change style
         barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
@@ -182,10 +185,25 @@ public class MainActivity extends AppCompatActivity {
         //BarData barData = new BarData(data);
         System.out.println(data);
         System.out.println(names);
+        //set labels for x axis
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setValueFormatter(new IAxisValueFormatter() {
+            ArrayList<String> labels;
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return labels.get((int) value);
+            }
+
+            private IAxisValueFormatter init(ArrayList<String> var){
+                labels = var;
+                return this;
+            }
+        }.init(names));
 
         barChart.setData(data);
         barChart.setTouchEnabled(true);
-        barChart.setDragScaleEnabled(true);
+        barChart.setFitBars(true); // make the x-axis fit exactly all bars
+        barChart.invalidate(); // refresh
     }
 
     @Override
