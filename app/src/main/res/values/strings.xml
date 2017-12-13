@@ -1,10 +1,17 @@
 <resources>
     <string name="app_name">Ma Quanto Lo Usi</string>
+    <string name="section_exercise">Exercises</string>
+    <string name="section_block">Set Apps to Limit</string>
+    <string name="section_tracking">Select Apps to Track</string>
     <string name="tab_text_1">Day</string>
     <string name="tab_text_2">Week</string>
     <string name="tab_text_3">Month</string>
-    <string name="action_settings">Tracking</string>
+    <string name="action_settings">Track Apps</string>
     <string name="section_format">Here is your %s report:</string>
-    <string name="action_block">Block</string>
+    <string name="action_block">Limits</string>
+    <string name="action_extends">Exercises</string>
+
+    <string name="Exercises">You can do some exercises to unlock time to spend
+        having fun with your favourite app</string>
 </resources>
 

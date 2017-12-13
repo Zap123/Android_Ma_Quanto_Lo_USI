@@ -4,14 +4,23 @@
     tools:context="com.usi.malu2.maquantolousi.MainActivity">
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="100"
+        android:orderInCategory="1"
         android:title="@string/action_settings"
         android:onClick="goToSettings"
-         />
+        />
+
     <item
         android:id="@+id/action_block"
-        android:orderInCategory="99"
+        android:orderInCategory="2"
         android:title="@string/action_block"
         android:onClick="goToBlock"
         />
+
+    <item
+        android:id="@+id/action_extends"
+        android:orderInCategory="3"
+        android:title="@string/action_extends"
+        android:onClick="goToExercise"
+        />
+
 </menu>

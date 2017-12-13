@@ -1,6 +1,5 @@
 package com.usi.malu2.maquantolousi;
 
-import android.Manifest;
 import android.app.AppOpsManager;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
@@ -9,10 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
-import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -26,7 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.BarChart;
@@ -37,17 +31,11 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
-import com.github.mikephil.charting.charts.HorizontalBarChart;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Map;
-
-import static android.app.AppOpsManager.MODE_ALLOWED;
-import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
-import static android.content.pm.PackageManager.PERMISSION_DENIED;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -75,8 +63,8 @@ public class MainActivity extends AppCompatActivity {
 
         sharedPref = getSharedPreferences("USI",MODE_PRIVATE);
 
-        drawCharts("Daily");
         requestAccessSettings();
+        drawCharts("Daily");
     }
 
     /**
@@ -112,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
         //Map package_name, usage time
         Map<String, UsageStats> stats = null;
         usageStatsManager = (UsageStatsManager) this.getSystemService(Context.USAGE_STATS_SERVICE);
-        //List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, 0,System.currentTimeMillis());
 
         //get today time at midnight
         if(Interval.equals("Daily")) {
@@ -131,9 +118,9 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<BarEntry> values = new ArrayList<>();
 
         if(stats !=null) {
-            float bucket = 0f;
+            int bucket = 0;
             for (Map.Entry<String, android.app.usage.UsageStats> entry : stats.entrySet()) {
-                System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue());
+                //System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue());
                 String name = null;
                 try {
                     name = (String) pm.getApplicationLabel(pm.getApplicationInfo(entry.getKey(), PackageManager.GET_META_DATA));
@@ -151,40 +138,13 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        /*
-
-        //ArrayList<IBarDataSet> dataSets = new ArrayList<IBarDataSet>();
-        int count =0;
-        for (UsageStats usage:queryUsageStats){
-            try {
-                String name = (String) pm.getApplicationLabel(pm.getApplicationInfo(usage.getPackageName(), pm.GET_META_DATA));
-                System.out.println(name);
-                System.out.println(sharedPref.getBoolean(name, false));
-                if( sharedPref.getBoolean(name, false)){
-                    names.add(name);
-
-                    values.add(new BarEntry((float)usage.getTotalTimeInForeground(),count));
-                    System.out.println(usage.getTotalTimeInForeground());
-                    count++;
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            };
-        };
-        */
-
         BarChart barChart = findViewById(R.id.barchart);
         BarDataSet barDataSet = new BarDataSet(values, "Apps");
         BarData data = new BarData(barDataSet);
 
         //change style
         barDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
-        //dataSets.add(barDataSet);
-        //System.out.println(dataSets);
-        //BarDataSet barDataSet = new BarDataSet(values, "Apps");
-        //BarData barData = new BarData(data);
-        System.out.println(data);
-        System.out.println(names);
+
         //set labels for x axis
         XAxis xAxis = barChart.getXAxis();
         xAxis.setValueFormatter(new IAxisValueFormatter() {
@@ -235,6 +195,14 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
+    public void goToExercise(MenuItem item) {
+
+        Intent intent;
+        intent = new Intent(this, ExerciseActivity.class);
+        startActivity(intent);
+    }
+
     public void goToBlock(MenuItem item){
         Intent intent;
         intent = new Intent(this, BlockListActivity.class);
@@ -269,11 +237,10 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-//            TextView textView = rootView.findViewById(R.id.section_label);
-//            textView.setText(getString(R.string.section_format, "Daily"));
+              //TextView textView = rootView.findViewById(R.id.section_label);
+              //textView.setText(getString(R.string.section_format, "Daily"));
             // TODO: 11/19/17 ADD THINGS HERE
             return rootView;
-//            return null;
         }
     }
 

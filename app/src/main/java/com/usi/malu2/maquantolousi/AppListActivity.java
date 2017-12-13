@@ -28,6 +28,7 @@ public class AppListActivity extends AppCompatActivity {
     ArrayList<String> names;
     ArrayList<Boolean> checks;
     SharedPreferences sharedPref;
+    CustomAdapter customAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +38,7 @@ public class AppListActivity extends AppCompatActivity {
 
         //Select activity and create it with custom adapter.
         ListView listView = findViewById(R.id.list_item);
-        CustomAdapter customAdapter = new CustomAdapter();
+        customAdapter = new CustomAdapter();
         listView.setAdapter(customAdapter);
     }
 
@@ -153,7 +154,9 @@ public class AppListActivity extends AppCompatActivity {
             //set db state to be the opposite of previous state
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean(appName, !track);
-            editor.commit();
+            //customAdapter.notifyDataSetChanged();
+            editor.apply();
         }
+
     }
 }

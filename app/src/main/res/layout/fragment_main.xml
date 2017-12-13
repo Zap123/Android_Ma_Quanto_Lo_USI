@@ -6,14 +6,10 @@
     android:layout_height="match_parent"
     tools:context="com.usi.malu2.maquantolousi.MainActivity$PlaceholderFragment">
 
-    <!--<com.jjoe64.graphview.GraphView-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:id="@+id/graph"-->
-        <!--/>-->
-    <!--<com.github.mikephil.charting.charts.BarChart-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:id="@+id/barchart"></com.github.mikephil.charting.charts.BarChart>-->
+    <com.github.mikephil.charting.charts.BarChart
+        android:id="@+id/barchart"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+     />
 
 </android.support.constraint.ConstraintLayout>

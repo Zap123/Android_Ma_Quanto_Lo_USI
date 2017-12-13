@@ -23,7 +23,7 @@ allprojects {
     }
 }
 dependencies {
-    compile 'com.github.PhilJay:MPAndroidChart:v1.5.0'
+    compile 'com.github.PhilJay:MPAndroidChart:v3.0.3'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support:design:26.1.0'

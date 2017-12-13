@@ -6,15 +6,15 @@
     android:id="@+id/activity_list"
     android:orientation="vertical"
     tools:context="com.usi.malu2.maquantolousi.AppListActivity">
-
+<!--
     <Button
+        android:id="@+id/save_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/save_button"
         android:onClick="saveAndGoHome"
         android:text="SAVE"
         tools:ignore="OnClick" />
-
+-->
     <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
