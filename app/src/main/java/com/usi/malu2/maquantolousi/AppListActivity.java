@@ -1,6 +1,5 @@
 package com.usi.malu2.maquantolousi;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -15,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
 import java.util.ArrayList;
 import java.util.List;
 

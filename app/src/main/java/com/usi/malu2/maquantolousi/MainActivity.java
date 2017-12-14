@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         Intent startBackgroundService =  new Intent(getApplicationContext(),BackgroundService.class);
         startBackgroundService.setPackage(getPackageName());
         startService(startBackgroundService);
+
         final PackageManager pm = getPackageManager();
 
         //Calendar cal = Calendar.getInstance();
@@ -213,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
         intent = new Intent(this, BlockListActivity.class);
         startActivity(intent);
     }
+
     /**
      * A placeholder fragment containing a simple view.
      */

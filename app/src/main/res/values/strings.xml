@@ -8,9 +8,10 @@
     <string name="tab_text_3">Month</string>
     <string name="action_settings">Track Apps</string>
     <string name="section_format">Here is your %s report:</string>
-    <string name="action_block">Limits</string>
+    <string name="action_block">Daily Limits</string>
     <string name="action_extends">Exercises</string>
-
+    <string name="exercise1">To beat this challenge and unlock 10 minutes extra, walk
+        10000 steps before midnight! </string>
     <string name="Exercises">You can do some exercises to unlock time to spend
         having fun with your favourite app</string>
 </resources>
