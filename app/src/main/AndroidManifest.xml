@@ -27,19 +27,20 @@
         <activity
             android:name=".AppListActivity"
             android:label="@string/section_tracking"
-            android:parentActivityName=".MainActivity">
-
-        </activity>
+            android:parentActivityName=".MainActivity"></activity>
         <activity
             android:name=".BlockListActivity"
             android:label="@string/action_block"
-            android:parentActivityName=".MainActivity">
-
-        </activity>
-        <activity android:name=".ExerciseActivity"
+            android:parentActivityName=".MainActivity"></activity>
+        <activity
+            android:name=".ExerciseActivity"
             android:label="@string/section_exercise"
-            android:parentActivityName=".MainActivity" >
-        </activity>
+            android:parentActivityName=".MainActivity"></activity>
+
+        <service
+            android:name=".BackgroundService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
