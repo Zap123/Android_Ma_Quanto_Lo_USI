@@ -1,5 +1,6 @@
 package com.usi.malu2.maquantolousi;
 
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -11,7 +12,9 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.data.BarEntry;
@@ -22,15 +25,17 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
-public class BackgroundService extends Service {
+public class BackgroundService extends IntentService {
     SharedPreferences sharedPref;
     UsageStatsManager usageStatsManager;
-    public BackgroundService() {
 
+    public BackgroundService() {
+        super("MaQuantoLoService");
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId){
+    protected void onHandleIntent(@Nullable Intent intent) {
+        Log.v("MaQuantoLoUSI","EXECUTE COMMANDDD");
         //put code to execute here
         final PackageManager pm = getPackageManager();
         Map<String, UsageStats> stats = null;
@@ -59,6 +64,7 @@ public class BackgroundService extends Service {
                     // name is app name
                     int minutesSet = sharedPref.getInt (name+"blockminutes", 0);
                     float value = entry.getValue().getTotalTimeInForeground()  / (1000 * 60);
+
                     if (value > minutesSet){
                         String notify = "you used app:"+name+ " for more than: "+ minutesSet+ " minutes";
                         NotificationCompat.Builder builder =  new NotificationCompat.Builder(getApplicationContext());
@@ -74,22 +80,6 @@ public class BackgroundService extends Service {
             }
 
         }
-        onTaskRemoved(intent);
         Toast.makeText(getApplicationContext(),"service",Toast.LENGTH_LONG);
-        return START_STICKY;
-    }
-
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        Intent restarted =  new Intent(getApplicationContext(),this.getClass());
-        restarted.setPackage(getPackageName());
-        startService(restarted);
-        super.onTaskRemoved(rootIntent);
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 }

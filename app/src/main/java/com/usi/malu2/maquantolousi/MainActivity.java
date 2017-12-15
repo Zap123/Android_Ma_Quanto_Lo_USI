@@ -1,6 +1,8 @@
 package com.usi.malu2.maquantolousi;
 
+import android.app.AlarmManager;
 import android.app.AppOpsManager;
+import android.app.PendingIntent;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
@@ -56,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,17 +66,18 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        sharedPref = getSharedPreferences("USI",MODE_PRIVATE);
+        sharedPref = getSharedPreferences("USI", MODE_PRIVATE);
 
         requestAccessSettings();
         drawCharts("Daily");
+        startBackgroundService();
     }
 
     /**
      * PACKAGE_USAGE_STATS requires a system-level permission
      * Settings > Security > Apps with usage access
      */
-    public void requestAccessSettings(){
+    public void requestAccessSettings() {
         boolean granted = false;
         Context context = this.getApplicationContext();
         AppOpsManager appOps = (AppOpsManager) context
@@ -87,16 +91,29 @@ public class MainActivity extends AppCompatActivity {
             granted = (mode == AppOpsManager.MODE_ALLOWED);
         }
         //ask User to allow the app
-        if(!granted){
+        if (!granted) {
             startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
         }
     }
 
-    public void drawCharts(String Interval){
-        System.out.println("starting service");
-        Intent startBackgroundService =  new Intent(getApplicationContext(),BackgroundService.class);
-        startBackgroundService.setPackage(getPackageName());
-        startService(startBackgroundService);
+    public void startBackgroundService() {
+        Log.v("MaQuantoLoUSI","STARTING SERVICE");
+        // Construct an intent that will execute the AlarmReceiver
+        Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+        // Create a PendingIntent to be triggered when the alarm goes off
+        final PendingIntent pIntent = PendingIntent.getBroadcast(this, AlarmReceiver.REQUEST_CODE,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        // Setup periodic alarm every every half hour from this point onwards
+        long firstMillis = System.currentTimeMillis(); // alarm is set right away
+        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        // First parameter is the type: ELAPSED_REALTIME, ELAPSED_REALTIME_WAKEUP, RTC_WAKEUP
+        // Interval can be INTERVAL_FIFTEEN_MINUTES, INTERVAL_HALF_HOUR, INTERVAL_HOUR, INTERVAL_DAY
+        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
+                2000, pIntent);
+
+    }
+
+    public void drawCharts(String Interval) {
 
         final PackageManager pm = getPackageManager();
 
@@ -109,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         usageStatsManager = (UsageStatsManager) this.getSystemService(Context.USAGE_STATS_SERVICE);
 
         //get today time at midnight
-        if(Interval.equals("Daily")) {
+        if (Interval.equals("Daily")) {
             // today
             Calendar date = new GregorianCalendar();
             // reset hour, minutes, seconds and millis
@@ -124,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> names = new ArrayList<>();
         ArrayList<BarEntry> values = new ArrayList<>();
 
-        if(stats !=null) {
+        if (stats != null) {
             int bucket = 0;
             for (Map.Entry<String, android.app.usage.UsageStats> entry : stats.entrySet()) {
                 //System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue());
@@ -135,10 +152,10 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                if (sharedPref.getBoolean(name, false)){
+                if (sharedPref.getBoolean(name, false)) {
                     names.add(name);
                     //add and convert to minutes
-                    values.add(new BarEntry(bucket,(float) entry.getValue().getTotalTimeInForeground()  / (1000 * 60)));
+                    values.add(new BarEntry(bucket, (float) entry.getValue().getTotalTimeInForeground() / (1000 * 60)));
                     bucket++;
                 }
             }
@@ -156,12 +173,13 @@ public class MainActivity extends AppCompatActivity {
         XAxis xAxis = barChart.getXAxis();
         xAxis.setValueFormatter(new IAxisValueFormatter() {
             ArrayList<String> labels;
+
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
                 return labels.get((int) value);
             }
 
-            private IAxisValueFormatter init(ArrayList<String> var){
+            private IAxisValueFormatter init(ArrayList<String> var) {
                 labels = var;
                 return this;
             }
@@ -210,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void goToBlock(MenuItem item){
+    public void goToBlock(MenuItem item) {
         Intent intent;
         intent = new Intent(this, BlockListActivity.class);
         startActivity(intent);
@@ -245,8 +263,8 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-              //TextView textView = rootView.findViewById(R.id.section_label);
-              //textView.setText(getString(R.string.section_format, "Daily"));
+            //TextView textView = rootView.findViewById(R.id.section_label);
+            //textView.setText(getString(R.string.section_format, "Daily"));
             // TODO: 11/19/17 ADD THINGS HERE
             return rootView;
         }
