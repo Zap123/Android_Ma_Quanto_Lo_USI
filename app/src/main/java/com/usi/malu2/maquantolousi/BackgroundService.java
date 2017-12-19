@@ -40,6 +40,17 @@ public class BackgroundService extends IntentService {
         final PackageManager pm = getPackageManager();
         Map<String, UsageStats> stats = null;
         sharedPref = getSharedPreferences("USI",MODE_PRIVATE);
+        Calendar c = Calendar.getInstance();
+        int hours = c.get(Calendar.HOUR_OF_DAY);
+        int minutes = c.get(Calendar.MINUTE);
+        int seconds = c.get(Calendar.SECOND);
+
+        if(hours*3600 + minutes*60 + seconds < 1800){
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt("challenge",10000);
+            editor.putInt("reward",10);
+            editor.commit();
+        }
         usageStatsManager = (UsageStatsManager) this.getSystemService(Context.USAGE_STATS_SERVICE);
 
         Calendar date = new GregorianCalendar();
@@ -63,16 +74,18 @@ public class BackgroundService extends IntentService {
                 if (track){ //if tracked, push to array infos
                     // name is app name
                     int minutesSet = sharedPref.getInt (name+"blockminutes", 0);
-                    float value = entry.getValue().getTotalTimeInForeground()  / (1000 * 60);
+                    if (minutesSet!=0){
+                        float value = entry.getValue().getTotalTimeInForeground()  / (1000 * 60);
 
-                    if (value > minutesSet){
-                        String notify = "you used app:"+name+ " for more than: "+ minutesSet+ " minutes";
-                        NotificationCompat.Builder builder =  new NotificationCompat.Builder(getApplicationContext());
-                        builder.setSmallIcon(R.mipmap.ic_launcher);
-                        builder.setContentTitle("MA QUANTO LO USI?");
-                        builder.setContentText(notify);
-                        NotificationManager NM = (NotificationManager) getSystemService(getApplicationContext().NOTIFICATION_SERVICE    );
-                        NM.notify(0, builder.build());
+                        if (value > minutesSet){
+                            String notify = "you used app:"+name+ " for more than: "+ minutesSet+ " minutes";
+                            NotificationCompat.Builder builder =  new NotificationCompat.Builder(getApplicationContext());
+                            builder.setSmallIcon(R.mipmap.ic_launcher);
+                            builder.setContentTitle("MA QUANTO LO USI?");
+                            builder.setContentText(notify);
+                            NotificationManager NM = (NotificationManager) getSystemService(getApplicationContext().NOTIFICATION_SERVICE    );
+                            NM.notify(0, builder.build());
+                        }
                     }
 
                 }

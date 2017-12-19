@@ -4,7 +4,11 @@ import static java.text.DateFormat.getDateInstance;
 import static java.text.DateFormat.getTimeInstance;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,8 +16,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.fitness.Fitness;
@@ -52,12 +59,18 @@ public class ExerciseActivity extends AppCompatActivity {
     public static final String TAG = "MaQuantoLoUSI";
     // Identifier to identify the sign in activity.
     private static final int REQUEST_OAUTH_REQUEST_CODE = 1;
-    public static final int challengeSteps = 10000;
+    public int challengeSteps;
+    public int reward;
+    public int done = 0;
+    SharedPreferences sharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exercise);
+        sharedPref = getSharedPreferences("USI",MODE_PRIVATE);
+        challengeSteps = sharedPref.getInt("challenge",10000);
+        reward = sharedPref.getInt("reward",10);
         // This method sets up our custom logger, which will print all log messages to the device
         // screen, as well as to adb logcat.
 
@@ -76,6 +89,64 @@ public class ExerciseActivity extends AppCompatActivity {
             readHistoryData();
 
         }
+
+
+        Button button  =  findViewById(R.id.reward );
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                System.out.println("HERE!!!");
+                if (done >= challengeSteps){
+                    System.out.println("AAAA!!!");
+                    Toast.makeText(view.getContext(),"You made it!",Toast.LENGTH_LONG);
+                    final PackageManager pm = getPackageManager();
+
+                    //local variable
+                    List<ApplicationInfo> apps = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+
+                    // For each app extract name image and query db to see if the user set the app to be tracked
+                    for (ApplicationInfo app : apps) {
+                        if (pm.getLaunchIntentForPackage(app.packageName) != null && !pm.getLaunchIntentForPackage(app.packageName).equals("")) {
+                            try {
+                                String name = (String) pm.getApplicationLabel(pm.getApplicationInfo(app.packageName, pm.GET_META_DATA));
+                                // search db for tracked info, if not found returns not tracked.
+                                Boolean track = sharedPref.getBoolean(name, false);
+                                if (track){ //if tracked, push to array infos
+                                    Boolean block = sharedPref.getBoolean(name+"block", false);
+                                    if (block){
+                                        Integer minutes = sharedPref.getInt (name+"blockminutes", 0);
+                                        if (minutes>0){
+                                            System.out.println(name+ minutes);
+                                            System.out.println(minutes+reward);
+                                            SharedPreferences.Editor editor = sharedPref.edit();
+                                            editor.putInt(name+"blockminutes", minutes+reward);
+                                            editor.commit();
+                                        }
+                                    }
+                                    Integer minutesSP = sharedPref.getInt (name+"blockminutes", 0);
+
+                                }
+                            } catch (PackageManager.NameNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putInt("challenge",challengeSteps*2);
+                    editor.putInt("reward",reward*2);
+                    editor.commit();
+                    reward = reward*2;
+                    challengeSteps = challengeSteps*2;
+                }else{
+                    int todo = challengeSteps-done;
+                    System.out.println("You have to perform "+todo+" more steps");
+                    Toast.makeText(view.getContext(),"You have to perform "+todo+" more steps",Toast.LENGTH_LONG);
+                }
+            }
+        });
+
+        TextView tv = findViewById(R.id.title);
+        tv.setText("To beat this challenge and unlock "+reward+" minutes extra, walk "+challengeSteps+" steps before midnight!");
     }
 
     @Override
@@ -203,7 +274,8 @@ public class ExerciseActivity extends AppCompatActivity {
                 steps.setText(dp.getValue(field).toString() + "/"+challengeSteps+" steps");
                 ProgressBar p_bar = findViewById(R.id.stepsProgress);
                 p_bar.setMax(challengeSteps);
-                p_bar.setProgress(Integer.parseInt(dp.getValue(field).toString()));
+                done = Integer.parseInt(dp.getValue(field).toString());
+                p_bar.setProgress(done);
             }
         }
     }
